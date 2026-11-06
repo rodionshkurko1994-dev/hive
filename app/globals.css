@@ -275,3 +275,74 @@ table.data tr:hover td { background: #fafaf9; }
 .site-footer a { color: var(--gray-600); text-decoration: none; }
 .site-footer a:hover { color: var(--black); text-decoration: underline; }
 .footer-mini { display: flex; gap: 12px; font-size: 13px; }
+
+/* ===== Responsive header (mobile menu) ===== */
+.header { position: relative; z-index: 30; }
+.header-avatar { display: inline-flex; text-decoration: none; }
+.hamburger {
+  display: none; width: 44px; height: 44px; border: 0; background: transparent; color: #fff;
+  align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; flex: none;
+}
+.hamburger:hover { background: #262626; }
+.nav-mobile {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 40; background: var(--black);
+  border-top: 1px solid #262626; box-shadow: 0 10px 24px rgba(0,0,0,.3);
+  display: flex; flex-direction: column; padding: 8px;
+}
+.nav-mobile a, .nav-mobile button {
+  color: #e5e5e5; text-decoration: none; padding: 14px; border-radius: 8px; font-size: 16px;
+  font-weight: 500; background: none; border: 0; text-align: left; width: 100%; cursor: pointer;
+}
+.nav-mobile a:hover, .nav-mobile button:hover { background: #262626; color: #fff; }
+.nav-mobile a.active { color: var(--honey); background: #262626; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .nav-desktop { display: none; }
+  .hamburger { display: inline-flex; }
+  .header-avatar { margin-left: auto; }
+  .header-inner { flex-wrap: nowrap; gap: 8px; padding: 10px 16px; }
+}
+
+/* ===== General mobile polish: nothing overflows ===== */
+html, body { overflow-x: hidden; }
+img { max-width: 100%; }
+
+@media (max-width: 600px) {
+  .container { padding: 16px; }
+  .card, .card-dark { padding: 16px; }
+  .legal { padding: 24px 16px 48px; }
+  h1.display { font-size: 23px; }
+
+  /* buttons may wrap instead of forcing overflow */
+  .btn { white-space: normal; }
+  .pill { min-height: 38px; padding: 0 14px; font-size: 13px; }
+
+  /* feed: show the main column before the side cards */
+  .col-main { order: -1; }
+
+  /* post actions stay on one line without pushing out */
+  .post-actions { gap: 0; }
+  .post-actions .btn-ghost { padding: 0 8px; font-size: 13px; }
+
+  /* profile header */
+  .cover { height: 150px; }
+  .profile-head { padding: 12px 16px 20px; gap: 12px 16px; }
+  .profile-avatar { margin-top: -66px; }
+  .profile-head .display { font-size: 23px; }
+  .pstats { gap: 4px 16px; font-size: 14px; }
+
+  /* tabs a touch tighter */
+  .tabs a { padding: 12px 12px; font-size: 14px; }
+
+  /* comments: shrink the left indent so replies fit */
+  .cmt-replies { padding-left: 40px; }
+
+  /* key/value grids stack */
+  .kv { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .pill { padding: 0 11px; }
+  .tabs a { padding: 12px 9px; font-size: 13px; }
+  .post-actions .btn-ghost { padding: 0 6px; }
+}
