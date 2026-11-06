@@ -237,3 +237,58 @@ export async function toggleCommentLike(formData) {
   }
   revalidatePath(`/p/${Number(formData.get('post_id'))}`);
 }
+
+// ---------- Особисті повідомлення ----------
+export async function startConversation(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const other = clean(formData.get('user_id'), 64);
+  if (!other || other === user.id) redirect('/messages');
+  const { data, error } = await supabase.rpc('get_or_create_conversation', { other });
+  if (error || !data) redirect(`/u/${other}`);
+  redirect(`/messages/${data}`);
+}
+
+export async function sendMessage(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Потрібно увійти' };
+  const conversationId = Number(formData.get('conversation_id'));
+  const body = clean(formData.get('body'), 3000);
+  let images = [];
+  try { images = JSON.parse(formData.get('images') || '[]'); } catch {}
+  const prefix = mediaPrefix(user.id);
+  images = (Array.isArray(images) ? images : []).filter((u) => typeof u === 'string' && u.startsWith(prefix)).slice(0, 4);
+  if (!body && images.length === 0) return { error: 'Порожнє повідомлення' };
+
+  const { error } = await supabase.from('messages').insert({
+    conversation_id: conversationId, sender_id: user.id, body, images,
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/messages/${conversationId}`);
+  revalidatePath('/messages');
+  return { ok: true };
+}
+
+export async function reportConversation(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const conversationId = Number(formData.get('conversation_id'));
+  const reason = clean(formData.get('reason'), 500) || null;
+  await supabase.from('message_reports').insert({
+    conversation_id: conversationId, reporter_id: user.id, reason,
+  });
+  redirect(`/messages/${conversationId}?reported=1`);
+}
+
+// ---------- Адмін: модерація чатів ----------
+export async function adminReviewReport(formData) {
+  const me = createClient();
+  const { data: { user } } = await me.auth.getUser();
+  if (!user || !isAdminEmail(user.email)) redirect('/feed');
+  const admin = createAdminClient();
+  await admin.from('message_reports').update({ status: 'reviewed' }).eq('id', Number(formData.get('report_id')));
+  revalidatePath('/admin/messages');
+}

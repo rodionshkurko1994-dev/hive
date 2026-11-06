@@ -14,6 +14,7 @@ export default function Header({ profile, isAdmin, active }) {
           <Link href="/feed" className={active === 'feed' ? 'active' : ''}>Стрічка</Link>
           <Link href="/neighbors" className={active === 'neighbors' ? 'active' : ''}>Сусіди</Link>
           <Link href="/rating" className={active === 'rating' ? 'active' : ''}>Рейтинг</Link>
+          <Link href="/messages" className={active === 'messages' ? 'active' : ''}>Повідомлення</Link>
           {isAdmin && <Link href="/admin" className={active === 'admin' ? 'active' : ''}>Адмінка</Link>}
           <form action={signOut}>
             <button type="submit">Вийти</button>

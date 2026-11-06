@@ -56,7 +56,10 @@ export default async function AdminPage({ searchParams }) {
       <main className="container stack" style={{ gap: 20 }}>
         <div className="row-wrap spread">
           <h1 className="display" style={{ margin: 0, fontSize: 26 }}>Адмінка · Користувачі</h1>
-          <a href={`/admin/export?${exportQs}`} className="btn btn-outline">Завантажити CSV</a>
+          <div className="row">
+            <Link href="/admin/messages" className="btn btn-outline">Модерація чатів</Link>
+            <a href={`/admin/export?${exportQs}`} className="btn btn-outline">Завантажити CSV</a>
+          </div>
         </div>
         {searchParams?.deleted && <div className="alert alert-ok">Користувача видалено.</div>}
 

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { formatDate } from '@/lib/constants';
 import { POST_SELECT, AUTHOR, withMine, fmtCount } from '@/lib/posts';
-import { toggleFollow } from '@/app/actions';
+import { toggleFollow, startConversation } from '@/app/actions';
 import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import Avatar from '@/components/Avatar';
@@ -74,13 +74,19 @@ export default async function UserPage({ params, searchParams }) {
               {isMe ? (
                 <Link href="/onboarding" className="btn btn-outline">Редагувати профіль</Link>
               ) : (
-                <form action={toggleFollow}>
-                  <input type="hidden" name="user_id" value={p.id} />
-                  <input type="hidden" name="following" value={following ? '1' : '0'} />
-                  <button type="submit" className={following ? 'btn btn-outline' : 'btn btn-honey'}>
-                    {following ? 'Ви підписані' : 'Підписатися'}
-                  </button>
-                </form>
+                <>
+                  <form action={toggleFollow}>
+                    <input type="hidden" name="user_id" value={p.id} />
+                    <input type="hidden" name="following" value={following ? '1' : '0'} />
+                    <button type="submit" className={following ? 'btn btn-outline' : 'btn btn-honey'}>
+                      {following ? 'Ви підписані' : 'Підписатися'}
+                    </button>
+                  </form>
+                  <form action={startConversation}>
+                    <input type="hidden" name="user_id" value={p.id} />
+                    <button type="submit" className="btn btn-outline">Написати</button>
+                  </form>
+                </>
               )}
               {isAdmin && <Link href={`/admin/users/${p.id}`} className="btn btn-dark">В адмінці</Link>}
             </div>
