@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AuthLayout from '@/components/AuthLayout';
@@ -9,6 +9,16 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sentTo, setSentTo] = useState('');
+  const [ref, setRef] = useState('');
+  useEffect(() => {
+    const r = new URLSearchParams(window.location.search).get('ref') || '';
+    if (/^[0-9a-f-]{36}$/i.test(r)) {
+      setRef(r);
+      try { localStorage.setItem('hive_ref', r); } catch {}
+    } else {
+      try { setRef(localStorage.getItem('hive_ref') || ''); } catch {}
+    }
+  }, []);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -28,7 +38,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { full_name },
+        data: ref ? { full_name, ref } : { full_name },
         emailRedirectTo: `${origin}/auth/callback?next=/onboarding`,
       },
     });
@@ -60,6 +70,7 @@ export default function SignupPage() {
   return (
     <AuthLayout>
       <h2 className="display" style={{ margin: 0, fontSize: 26 }}>Реєстрація</h2>
+      {ref && <div className="alert alert-ok">Тебе запросили до HIVE</div>}
       <form onSubmit={onSubmit} className="stack" style={{ gap: 16 }}>
         <div className="field">
           <label htmlFor="full_name">Ім'я та прізвище</label>

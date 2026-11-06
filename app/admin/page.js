@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireAdminPage, loadAllUsers } from '@/lib/admin';
-import { DISTRICTS, formatDate, initials } from '@/lib/constants';
+import { DISTRICTS, formatDate } from '@/lib/constants';
+import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +21,7 @@ export default async function AdminPage({ searchParams }) {
   const district = DISTRICTS.includes(searchParams?.district) ? searchParams.district : '';
   const status = (searchParams?.status || '').toString();
 
+  const sort = searchParams?.sort === 'rating' ? 'rating' : 'date';
   const users = all.filter((u) => {
     if (q && !(`${u.full_name} ${u.email} ${u.building} ${u.neighborhood}`.toLowerCase().includes(q))) return false;
     if (district && u.district !== district) return false;
@@ -29,6 +31,7 @@ export default async function AdminPage({ searchParams }) {
     if (status === 'active' && (u.is_blocked || !u.confirmed_at || !u.onboarded)) return false;
     return true;
   });
+  if (sort === 'rating') users.sort((a, b) => b.rating - a.rating);
 
   const now = Date.now();
   const day = 86400000;
@@ -38,6 +41,8 @@ export default async function AdminPage({ searchParams }) {
     ['Нових за 7 днів', all.filter((u) => now - new Date(u.created_at) < 7 * day).length],
     ['Не підтвердили пошту', all.filter((u) => !u.confirmed_at).length],
     ['Дописів усього', all.reduce((s, u) => s + u.posts, 0)],
+    ['Переглядів усього', all.reduce((s, u) => s + u.views_received, 0)],
+    ['Зареєстровано за запрошенням', all.filter((u) => u.invited_by).length],
   ];
 
   const byDistrict = DISTRICTS.map((d) => [d, all.filter((u) => u.district === d).length]).filter(([, n]) => n > 0)
@@ -99,6 +104,13 @@ export default async function AdminPage({ searchParams }) {
               <option value="blocked">Заблоковані</option>
             </select>
           </div>
+          <div className="field" style={{ flex: '1 1 160px' }}>
+            <label htmlFor="sort">Сортування</label>
+            <select id="sort" name="sort" className="select" defaultValue={sort}>
+              <option value="date">Нові спочатку</option>
+              <option value="rating">За рейтингом</option>
+            </select>
+          </div>
           <div className="row" style={{ alignSelf: 'flex-end' }}>
             <button type="submit" className="btn btn-dark">Фільтрувати</button>
             <Link href="/admin" className="btn btn-ghost">Скинути</Link>
@@ -116,13 +128,15 @@ export default async function AdminPage({ searchParams }) {
                 <th>Реєстрація</th>
                 <th>Останній вхід</th>
                 <th>Дописи</th>
+                <th>Підписники</th>
+                <th>Рейтинг</th>
                 <th>Статус</th>
                 <th><span className="sr-only">Дії</span></th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 && (
-                <tr><td colSpan={7} className="muted" style={{ textAlign: 'center', padding: 32 }}>Нікого не знайдено</td></tr>
+                <tr><td colSpan={9} className="muted" style={{ textAlign: 'center', padding: 32 }}>Нікого не знайдено</td></tr>
               )}
               {users.map((u) => {
                 const [label, cls] = statusOf(u);
@@ -130,7 +144,7 @@ export default async function AdminPage({ searchParams }) {
                   <tr key={u.id}>
                     <td>
                       <div className="row" style={{ gap: 10 }}>
-                        <span className="avatar" style={{ width: 36, height: 36, fontSize: 13 }}>{initials(u.full_name || u.email)}</span>
+                        <Avatar profile={{ full_name: u.full_name || u.email, avatar_url: u.avatar_url }} size={36} />
                         <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                           <b>{u.full_name || '—'}</b>
                           <span className="small muted">{u.email}</span>
@@ -146,6 +160,8 @@ export default async function AdminPage({ searchParams }) {
                     <td style={{ whiteSpace: 'nowrap' }}>{formatDate(u.created_at, true)}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>{u.last_sign_in_at ? formatDate(u.last_sign_in_at, true) : '—'}</td>
                     <td>{u.posts}</td>
+                    <td>{u.followers}</td>
+                    <td><b>{u.rating}</b></td>
                     <td><span className={`tag ${cls}`}>{label}</span></td>
                     <td><Link href={`/admin/users/${u.id}`} className="btn btn-outline btn-sm">Деталі</Link></td>
                   </tr>

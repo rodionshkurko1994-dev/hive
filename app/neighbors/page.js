@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getSession } from '@/lib/session';
-import { initials } from '@/lib/constants';
+import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,7 @@ export default async function NeighborsPage({ searchParams }) {
   const q = (searchParams?.q || '').toString().trim().slice(0, 60);
 
   let query = supabase.from('profiles')
-    .select('id, full_name, district, neighborhood, building')
+    .select('id, full_name, avatar_url, district, neighborhood, building')
     .eq('district', profile.district).eq('onboarded', true).neq('id', user.id)
     .order('created_at', { ascending: false }).limit(100);
   if (q) query = query.ilike('full_name', `%${q}%`);
@@ -32,7 +32,7 @@ export default async function NeighborsPage({ searchParams }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
           {(people || []).map((p) => (
             <Link key={p.id} href={`/u/${p.id}`} className="card row" style={{ textDecoration: 'none', color: 'var(--black)', alignItems: 'flex-start' }}>
-              <span className="avatar" style={{ width: 48, height: 48, fontSize: 16 }}>{initials(p.full_name)}</span>
+              <Avatar profile={p} size={48} />
               <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 2 }}>
                 <b>{p.full_name}</b>
                 <span className="small muted">{[p.neighborhood, p.building].filter(Boolean).join(' · ') || p.district}</span>

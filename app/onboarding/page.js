@@ -2,6 +2,7 @@ import { getSession } from '@/lib/session';
 import { saveProfile } from '@/app/actions';
 import { DISTRICTS } from '@/lib/constants';
 import Header from '@/components/Header';
+import AvatarUpload from '@/components/AvatarUpload';
 
 export default async function OnboardingPage({ searchParams }) {
   const { profile, isAdmin } = await getSession({ requireOnboarded: false });
@@ -23,6 +24,7 @@ export default async function OnboardingPage({ searchParams }) {
           {searchParams?.error && (
             <div className="alert alert-error" role="alert">Заповни ім'я та вибери район.</div>
           )}
+          <AvatarUpload profile={profile} />
           <form action={saveProfile} className="stack" style={{ gap: 16 }}>
             <div className="field">
               <label htmlFor="full_name">Ім'я та прізвище *</label>

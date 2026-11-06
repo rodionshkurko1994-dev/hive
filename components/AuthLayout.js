@@ -11,7 +11,7 @@ export default function AuthLayout({ children }) {
             Соцмережа <span style={{ color: 'var(--honey)' }}>твого району</span>
           </h1>
           <p style={{ margin: 0, color: '#d4d4d4', fontSize: 17 }}>
-            Знайомся з сусідами, дізнавайся, що відбувається в будинку і районі, проси й пропонуй допомогу.
+            Знайомся з сусідами, ділися фото й думками, підписуйся на цікавих людей поруч.
           </p>
         </div>
         <p className="small" style={{ margin: 0, color: '#a3a3a3' }}>Зроблено в Україні</p>

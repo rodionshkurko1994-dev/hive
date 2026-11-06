@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdminPage, loadAllUsers } from '@/lib/admin';
 import { createAdminClient } from '@/lib/supabase/server';
-import { CATEGORIES, formatDate, initials } from '@/lib/constants';
+import { formatDate } from '@/lib/constants';
+import Avatar from '@/components/Avatar';
 import { adminSetBlocked, adminDeletePost, adminDeleteUser, adminResendConfirmation } from '@/app/actions';
 import Header from '@/components/Header';
 
@@ -31,6 +32,12 @@ export default async function AdminUserPage({ params, searchParams }) {
     ['Останній вхід', u.last_sign_in_at ? formatDate(u.last_sign_in_at, true) : '—'],
     ['Анкету заповнено', u.onboarded ? 'Так' : 'Ні'],
     ['Дописів', u.posts],
+    ['Рейтинг', u.rating],
+    ['Підписники / підписки', `${u.followers} / ${u.following}`],
+    ['Запросив людей', u.invites],
+    ['Отримав вподобань / поширень', `${u.likes_received} / ${u.reposts_received}`],
+    ['Переглядів дописів', u.views_received],
+    ['Хто запросив', u.invited_by ? u.invited_by_name : '—'],
   ];
 
   return (
@@ -42,7 +49,7 @@ export default async function AdminUserPage({ params, searchParams }) {
         {searchParams?.error && <div className="alert alert-error">Щоб видалити, введіть слово ВИДАЛИТИ великими літерами.</div>}
 
         <div className="card row-wrap" style={{ gap: 16 }}>
-          <span className="avatar honey display" style={{ width: 72, height: 72, fontSize: 24 }}>{initials(u.full_name || u.email)}</span>
+          <Avatar profile={{ full_name: u.full_name || u.email, avatar_url: u.avatar_url }} size={72} tone="honey" />
           <div className="stack" style={{ gap: 4, flex: '1 1 240px' }}>
             <h1 className="display" style={{ margin: 0, fontSize: 24 }}>{u.full_name || u.email}</h1>
             <span className="muted">{u.email}</span>
@@ -96,13 +103,19 @@ export default async function AdminUserPage({ params, searchParams }) {
           {(posts || []).map((p) => (
             <div key={p.id} className="stack" style={{ gap: 6, borderTop: '1px solid var(--gray-200)', paddingTop: 12 }}>
               <div className="row-wrap spread">
-                <span className="small muted">{formatDate(p.created_at, true)} · {CATEGORIES[p.category]}</span>
+                <span className="small muted">{formatDate(p.created_at, true)}</span>
                 <form action={adminDeletePost}>
                   <input type="hidden" name="post_id" value={p.id} />
                   <button type="submit" className="btn btn-danger btn-sm">Видалити допис</button>
                 </form>
               </div>
-              <p className="post-body" style={{ fontSize: 15 }}>{p.body}</p>
+              {p.body && <p className="post-body" style={{ fontSize: 15 }}>{p.body}</p>}
+              {p.images?.length > 0 && (
+                <div className="photo-grid" style={{ maxWidth: 420 }}>
+                  {p.images.map((src) => <a key={src} href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt="" /></a>)}
+                </div>
+              )}
+              <span className="small muted">Переглядів {p.views_count} · вподобань {p.likes_count} · поширень {p.reposts_count}</span>
             </div>
           ))}
         </section>

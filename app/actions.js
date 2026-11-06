@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient, createAdminClient, isAdminEmail } from '@/lib/supabase/server';
-import { CATEGORIES, DISTRICTS } from '@/lib/constants';
+import { DISTRICTS } from '@/lib/constants';
 
 export async function signOut() {
   const supabase = createClient();
@@ -40,28 +40,58 @@ export async function saveProfile(formData) {
   redirect('/feed');
 }
 
+function mediaPrefix(userId) {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/media/${userId}/`;
+}
+
+function revalidateAll() {
+  revalidatePath('/feed');
+  revalidatePath('/u/[id]', 'page');
+  revalidatePath('/rating');
+}
+
 export async function createPost(formData) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) return { error: 'Потрібно увійти' };
 
   const body = clean(formData.get('body'), 3000);
-  let category = clean(formData.get('category'), 20);
-  if (!CATEGORIES[category]) category = 'general';
-  if (!body) return;
+  let images = [];
+  try {
+    images = JSON.parse(formData.get('images') || '[]');
+  } catch {}
+  const prefix = mediaPrefix(user.id);
+  images = (Array.isArray(images) ? images : [])
+    .filter((u) => typeof u === 'string' && u.startsWith(prefix))
+    .slice(0, 4);
+  if (!body && images.length === 0) return { error: 'Порожній допис' };
 
   const { data: profile } = await supabase
     .from('profiles').select('district, neighborhood, building').eq('id', user.id).single();
 
-  await supabase.from('posts').insert({
+  const { error } = await supabase.from('posts').insert({
     author_id: user.id,
     body,
-    category,
+    images,
     district: profile?.district || null,
     neighborhood: profile?.neighborhood || null,
     building: profile?.building || null,
   });
-  revalidatePath('/feed');
+  if (error) return { error: error.message };
+  revalidateAll();
+  return { ok: true };
+}
+
+export async function setAvatar(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Потрібно увійти' };
+  const url = clean(formData.get('url'), 500);
+  if (!url.startsWith(mediaPrefix(user.id))) return { error: 'Невірне фото' };
+  const { error } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+  if (error) return { error: error.message };
+  revalidatePath('/', 'layout');
+  return { ok: true };
 }
 
 export async function toggleLike(formData) {
@@ -69,14 +99,40 @@ export async function toggleLike(formData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   const postId = Number(formData.get('post_id'));
-  const liked = formData.get('liked') === '1';
-  if (liked) {
+  if (formData.get('liked') === '1') {
     await supabase.from('likes').delete().eq('post_id', postId).eq('user_id', user.id);
   } else {
     await supabase.from('likes').insert({ post_id: postId, user_id: user.id });
   }
-  revalidatePath('/feed');
-  revalidatePath('/u/[id]', 'page');
+  revalidateAll();
+}
+
+export async function toggleRepost(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const postId = Number(formData.get('post_id'));
+  if (formData.get('reposted') === '1') {
+    await supabase.from('reposts').delete().eq('post_id', postId).eq('user_id', user.id);
+  } else {
+    await supabase.from('reposts').insert({ post_id: postId, user_id: user.id });
+  }
+  revalidateAll();
+}
+
+export async function toggleFollow(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const target = clean(formData.get('user_id'), 64);
+  if (!target || target === user.id) return;
+  if (formData.get('following') === '1') {
+    await supabase.from('follows').delete().eq('follower_id', user.id).eq('following_id', target);
+  } else {
+    await supabase.from('follows').insert({ follower_id: user.id, following_id: target });
+  }
+  revalidatePath(`/u/${target}`);
+  revalidateAll();
 }
 
 export async function deleteOwnPost(formData) {
@@ -84,8 +140,7 @@ export async function deleteOwnPost(formData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   await supabase.from('posts').delete().eq('id', Number(formData.get('post_id'))).eq('author_id', user.id);
-  revalidatePath('/feed');
-  revalidatePath('/u/[id]', 'page');
+  revalidateAll();
 }
 
 // ---------- Адмінські дії ----------

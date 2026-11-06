@@ -22,7 +22,7 @@ export async function GET(request) {
     (!district || u.district === district)
   );
 
-  const head = ['id', 'email', 'full_name', 'district', 'neighborhood', 'building', 'bio', 'created_at', 'confirmed_at', 'last_sign_in_at', 'onboarded', 'is_blocked', 'posts'];
+  const head = ['id', 'email', 'full_name', 'district', 'neighborhood', 'building', 'bio', 'created_at', 'confirmed_at', 'last_sign_in_at', 'onboarded', 'is_blocked', 'posts', 'followers', 'following', 'invites', 'invited_by_name', 'likes_received', 'reposts_received', 'views_received', 'rating'];
   const lines = [head.join(',')].concat(users.map((u) => head.map((k) => esc(u[k])).join(',')));
   return new NextResponse('﻿' + lines.join('\n'), {
     headers: {
