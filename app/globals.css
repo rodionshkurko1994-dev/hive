@@ -207,3 +207,17 @@ table.data tr:hover td { background: #fafaf9; }
   display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
   background: var(--black); color: var(--honey); font-weight: 700; font-size: 14px;
 }
+
+/* Comments (Threads-style) */
+.thread { display: flex; flex-direction: column; }
+.cmt { display: flex; gap: 12px; padding-top: 14px; }
+.cmt-side { display: flex; flex-direction: column; align-items: center; flex: none; }
+.cmt-line { flex: 1; width: 2px; background: var(--gray-200); margin-top: 6px; border-radius: 2px; min-height: 12px; }
+.cmt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-bottom: 6px; }
+.cmt-body { margin: 0; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.cmt-actions { display: flex; align-items: center; gap: 2px; margin-left: -12px; }
+.cmt-actions .btn-ghost { min-height: 36px; font-size: 13px; }
+.cmt-replies { padding-left: 52px; }
+.cmt + .cmt-sep, .cmt-sep { border-top: 1px solid #f0efee; margin-top: 4px; }
+.cmt:target .cmt-main, .cmt.hl .cmt-main { background: var(--honey-soft); border-radius: 10px; padding: 6px 10px; margin: -6px -10px 0; }
+.reply-to { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--gray-600); }

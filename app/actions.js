@@ -193,3 +193,47 @@ export async function adminResendConfirmation(formData) {
   });
   redirect(`/admin/users/${id}?resent=1`);
 }
+
+// ---------- Коментарі ----------
+export async function addComment(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const postId = Number(formData.get('post_id'));
+  const parentRaw = Number(formData.get('parent_id'));
+  const parent_id = Number.isFinite(parentRaw) && parentRaw > 0 ? parentRaw : null;
+  const body = clean(formData.get('body'), 1000);
+  if (!postId) redirect('/feed');
+  if (!body) redirect(`/p/${postId}${parent_id ? `?reply=${parent_id}` : ''}#reply`);
+
+  const { data, error } = await supabase.from('comments')
+    .insert({ post_id: postId, author_id: user.id, parent_id, body })
+    .select('id').single();
+  revalidatePath(`/p/${postId}`);
+  revalidateAll();
+  if (error) redirect(`/p/${postId}?error=1#reply`);
+  redirect(`/p/${postId}#c-${data.id}`);
+}
+
+export async function deleteComment(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const postId = Number(formData.get('post_id'));
+  await supabase.from('comments').delete().eq('id', Number(formData.get('comment_id')));
+  revalidatePath(`/p/${postId}`);
+  revalidateAll();
+}
+
+export async function toggleCommentLike(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const commentId = Number(formData.get('comment_id'));
+  if (formData.get('liked') === '1') {
+    await supabase.from('comment_likes').delete().eq('comment_id', commentId).eq('user_id', user.id);
+  } else {
+    await supabase.from('comment_likes').insert({ comment_id: commentId, user_id: user.id });
+  }
+  revalidatePath(`/p/${Number(formData.get('post_id'))}`);
+}

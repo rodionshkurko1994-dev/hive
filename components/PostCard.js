@@ -13,6 +13,14 @@ function RepostIcon() {
   );
 }
 
+function CommentIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12a8.5 8.5 0 01-12.4 7.6L3 21l1.4-5.2A8.5 8.5 0 1121 12z" />
+    </svg>
+  );
+}
+
 function EyeIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -21,7 +29,7 @@ function EyeIcon() {
   );
 }
 
-export default function PostCard({ post, myId, liked = false, reposted = false, repostedBy = null }) {
+export default function PostCard({ post, myId, liked = false, reposted = false, repostedBy = null, detail = false }) {
   const a = post.author || {};
   const place = post.neighborhood || post.district || '';
   const mine = myId === post.author_id;
@@ -41,10 +49,12 @@ export default function PostCard({ post, myId, liked = false, reposted = false, 
         </Link>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Link href={`/u/${a.id}`} style={{ color: 'var(--black)', fontWeight: 600, textDecoration: 'none' }}>{a.full_name || 'Користувач'}</Link>
-          <span className="small muted">{place ? `${place} · ` : ''}{timeAgo(post.created_at)}</span>
+          <span className="small muted">{place ? `${place} · ` : ''}<Link href={`/p/${post.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{timeAgo(post.created_at)}</Link></span>
         </div>
       </div>
-      {post.body && <p className="post-body">{post.body}</p>}
+      {post.body && (detail
+        ? <p className="post-body">{post.body}</p>
+        : <Link href={`/p/${post.id}`} style={{ color: 'inherit', textDecoration: 'none' }}><p className="post-body">{post.body}</p></Link>)}
       {images.length > 0 && (
         <div className="img-grid" data-count={images.length}>
           {images.map((src) => (
@@ -68,6 +78,9 @@ export default function PostCard({ post, myId, liked = false, reposted = false, 
             </button>
           </form>
         )}
+        <Link href={`/p/${post.id}#reply`} className="btn btn-ghost like-btn" aria-label="Коментарі">
+          <CommentIcon /> {fmtCount(post.comments_count)}
+        </Link>
         {mine ? (
           <span className="btn btn-ghost like-btn" style={{ cursor: 'default' }} title="Поширення">
             <RepostIcon /> {fmtCount(post.reposts_count)}
