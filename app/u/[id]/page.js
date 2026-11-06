@@ -49,10 +49,10 @@ export default async function UserPage({ params, searchParams }) {
             <div className="hex" style={{ position: 'absolute', right: 'calc(8% + 80px)', top: 84, width: 52, height: 52, background: 'var(--honey)', opacity: 0.45 }} />
           </div>
           <div className="profile-head">
-            <div className="hex" style={{ width: 140, height: 140, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="hex profile-avatar" style={{ width: 140, height: 140, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Avatar profile={p} size={128} tone="honey" className="display" />
             </div>
-            <div className="stack" style={{ flex: '1 1 280px', gap: 8, paddingBottom: 6 }}>
+            <div className="stack" style={{ flex: '1 1 280px', gap: 8 }}>
               <div className="row-wrap">
                 <h1 className="display" style={{ margin: 0, fontSize: 28 }}>{p.full_name || 'Користувач'}</h1>
                 <span className="rating-badge" title="Рейтинг">
@@ -70,7 +70,7 @@ export default async function UserPage({ params, searchParams }) {
                 {[p.neighborhood, p.district && `${p.district} район`].filter(Boolean).join(' · ')} · на HIVE з {formatDate(p.created_at)}
               </span>
             </div>
-            <div className="row-wrap" style={{ paddingBottom: 6 }}>
+            <div className="row-wrap">
               {isMe ? (
                 <Link href="/onboarding" className="btn btn-outline">Редагувати профіль</Link>
               ) : (

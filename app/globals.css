@@ -155,7 +155,8 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 
 /* Profile */
 .cover { height: 200px; background: #1c1917; position: relative; overflow: hidden; }
-.profile-head { padding: 0 28px 24px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; margin-top: -60px; position: relative; }
+.profile-head { padding: 16px 28px 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 24px; position: relative; }
+.profile-avatar { margin-top: -86px; flex: none; }
 
 /* Admin */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
