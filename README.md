@@ -17,7 +17,7 @@
 
 1. Зайди на https://supabase.com, натисни **Start your project** і зареєструйся. **Використай ту саму пошту, на яку створюватимеш тестовий акаунт HIVE**: стандартна пошта Supabase надсилає листи лише учасникам команди проєкту (див. крок 6).
 2. **New project**: назва `hive`, придумай і збережи пароль бази, регіон **Central EU (Frankfurt)**, тобто найближчий до України. Зачекай 1–2 хвилини.
-3. Ліве меню → **SQL Editor** → **New query**. Відкрий файл `supabase/schema.sql`, скопіюй увесь текст, встав і натисни **Run**. Має з'явитися «Success». Потім так само виконай по черзі `supabase/migration-02.sql`, `supabase/migration-03.sql` і `supabase/migration-04.sql`.
+3. Ліве меню → **SQL Editor** → **New query**. Відкрий файл `supabase/schema.sql`, скопіюй увесь текст, встав і натисни **Run**. Має з'явитися «Success». Потім так само виконай по черзі `supabase/migration-02.sql`, `-03`, `-04` і `-05`.
 4. Ліве меню → **Project Settings** → **API Keys** (або **API**). Скопіюй собі в нотатки:
    - **Project URL** (вигляд `https://abcd.supabase.co`, є також у Settings → Data API);
    - **anon / publishable** ключ (публічний);

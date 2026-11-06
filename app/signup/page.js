@@ -85,6 +85,10 @@ export default function SignupPage() {
           <input id="password" name="password" type="password" className="input" required minLength={8} autoComplete="new-password" />
           <span className="hint">Щонайменше 8 символів</span>
         </div>
+        <label className="row" style={{ gap: 10, alignItems: 'flex-start', fontSize: 14 }}>
+          <input type="checkbox" required style={{ marginTop: 3 }} />
+          <span>Я приймаю <a href="/terms" target="_blank">Правила користування</a> та <a href="/privacy" target="_blank">Політику конфіденційності</a>.</span>
+        </label>
         {error && <div className="alert alert-error" role="alert">{error}</div>}
         <button type="submit" className="btn btn-honey" disabled={loading}>
           {loading ? 'Створюємо…' : 'Створити акаунт'}

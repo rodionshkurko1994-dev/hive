@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import PostCard from '@/components/PostCard';
 import Avatar from '@/components/Avatar';
 import ViewTracker from '@/components/ViewTracker';
+import Footer from '@/components/Footer';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,6 +79,7 @@ export default async function FeedPage({ searchParams }) {
             </span>
           </Link>
           <Link href={`/u/${profile.id}#new`} className="btn btn-honey">Новий допис</Link>
+          <Footer />
         </aside>
 
         <section className="col-main" aria-label="Стрічка">

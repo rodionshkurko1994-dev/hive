@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { timeAgo } from '@/lib/constants';
 import { fmtCount } from '@/lib/posts';
-import { toggleLike, toggleRepost, deleteOwnPost } from '@/app/actions';
+import { toggleLike, toggleRepost, deleteOwnPost, reportPost } from '@/app/actions';
 import HexIcon from './HexIcon';
 import Avatar from './Avatar';
 
@@ -98,11 +98,25 @@ export default function PostCard({ post, myId, liked = false, reposted = false, 
           <EyeIcon /> {fmtCount(post.views_count)}
           <span className="sr-only">переглядів</span>
         </span>
-        {mine && (
+        {mine ? (
           <form action={deleteOwnPost} style={{ marginLeft: 'auto' }}>
             <input type="hidden" name="post_id" value={post.id} />
             <button type="submit" className="btn btn-ghost">Видалити</button>
           </form>
+        ) : (
+          <details className="post-menu" style={{ marginLeft: 'auto' }}>
+            <summary className="btn btn-ghost" aria-label="Ще">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
+            </summary>
+            <div className="post-menu-pop card">
+              <form action={reportPost} className="stack" style={{ gap: 8 }}>
+                <input type="hidden" name="post_id" value={post.id} />
+                <label htmlFor={`rp-${post.id}`} className="small" style={{ fontWeight: 600 }}>Поскаржитись на допис</label>
+                <input id={`rp-${post.id}`} name="reason" className="input" placeholder="Причина (необовʼязково)" maxLength={500} />
+                <button type="submit" className="btn btn-danger btn-sm">Надіслати скаргу</button>
+              </form>
+            </div>
+          </details>
         )}
       </div>
     </article>

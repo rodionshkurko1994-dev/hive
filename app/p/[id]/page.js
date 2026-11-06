@@ -92,6 +92,7 @@ export default async function PostPage({ params, searchParams }) {
       <main className="container stack" style={{ maxWidth: 720, gap: 16 }}>
         <Link href="/feed" className="small" style={{ fontWeight: 600 }}>← До стрічки</Link>
 
+        {searchParams?.reported && <div className="alert alert-ok">Дякуємо, скаргу надіслано модерації.</div>}
         <PostCard post={post} myId={user.id} liked={item.liked} reposted={item.reposted} detail />
 
         <section className="card" aria-labelledby="replies">

@@ -292,3 +292,25 @@ export async function adminReviewReport(formData) {
   await admin.from('message_reports').update({ status: 'reviewed' }).eq('id', Number(formData.get('report_id')));
   revalidatePath('/admin/messages');
 }
+
+// ---------- Скарги на дописи ----------
+export async function reportPost(formData) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const postId = Number(formData.get('post_id'));
+  const reason = clean(formData.get('reason'), 500) || null;
+  if (postId) {
+    await supabase.from('post_reports').insert({ post_id: postId, reporter_id: user.id, reason });
+  }
+  redirect(`/p/${postId}?reported=1`);
+}
+
+export async function adminReviewPostReport(formData) {
+  const me = createClient();
+  const { data: { user } } = await me.auth.getUser();
+  if (!user || !isAdminEmail(user.email)) redirect('/feed');
+  const admin = createAdminClient();
+  await admin.from('post_reports').update({ status: 'reviewed' }).eq('id', Number(formData.get('report_id')));
+  revalidatePath('/admin/reports');
+}

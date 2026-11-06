@@ -1,3 +1,5 @@
+import Footer from './Footer';
+
 export default function AuthLayout({ children }) {
   return (
     <div className="auth-wrap">
@@ -19,7 +21,7 @@ export default function AuthLayout({ children }) {
         <div aria-hidden="true" className="hex" style={{ position: 'absolute', right: 150, bottom: 30, width: 110, height: 110, background: 'var(--honey)', opacity: 0.35 }} />
       </section>
       <section className="auth-form">
-        <div className="auth-card">{children}</div>
+        <div className="auth-card">{children}<Footer mini={false} /></div>
       </section>
     </div>
   );

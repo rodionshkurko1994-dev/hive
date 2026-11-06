@@ -57,6 +57,7 @@ export default async function AdminPage({ searchParams }) {
         <div className="row-wrap spread">
           <h1 className="display" style={{ margin: 0, fontSize: 26 }}>Адмінка · Користувачі</h1>
           <div className="row">
+            <Link href="/admin/reports" className="btn btn-outline">Скарги на дописи</Link>
             <Link href="/admin/messages" className="btn btn-outline">Модерація чатів</Link>
             <a href={`/admin/export?${exportQs}`} className="btn btn-outline">Завантажити CSV</a>
           </div>
